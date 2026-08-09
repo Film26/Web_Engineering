@@ -1,1 +1,229 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard ผู้บริหาร | Scholarship Management System</title><link rel="stylesheet" href="style.css"></head><body class="admin-body"><div class="admin-shell"><aside class="admin-side" id="adminMenu"><div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div><nav class="admin-menu"><a class="active" href="dashboard.html">⌂ &nbsp; หน้าหลัก</a><a href="#">▣ &nbsp; จัดการทุนการศึกษา</a><a href="#">▤ &nbsp; ผู้สมัครและเอกสาร</a><a href="#">◉ &nbsp; ตรวจสอบทุน</a><a href="#">▱ &nbsp; ผู้ได้รับทุน</a><a href="#">▥ &nbsp; รายงาน</a><a href="#">♧ &nbsp; ผู้ใช้งานระบบ</a><a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a></nav></aside><div class="menu-scrim" id="menuScrim"></div><main class="admin-main"><header class="admin-top"><div class="admin-title"><button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false"><span></span><span></span><span></span></button><strong>Dashboard</strong></div><div class="admin-user"><span class="avatar">👩🏻</span>น.ส.จิราพร ช่างน้ำฝน⌄</div></header><section class="admin-content"><p class="admin-subtitle">ภาพรวมระบบทุนการศึกษา</p><div class="kpis"><article class="kpi"><b class="kpi-icon">♜</b><div><span>ทุนที่เปิดรับ</span><strong>12 <small>ทุน</small></strong></div></article><article class="kpi"><b class="kpi-icon">♧</b><div><span>ผู้สมัครทั้งหมด</span><strong>856 <small>คน</small></strong></div></article><article class="kpi"><b class="kpi-icon">♕</b><div><span>ผู้ได้รับทุน</span><strong>210 <small>คน</small></strong></div></article><article class="kpi"><b class="kpi-icon">▣</b><div><span>มูลค่าทุนรวม</span><strong>5,246,000 <small>บาท</small></strong></div></article></div><div class="admin-grid"><article class="admin-card"><h2>จำนวนผู้สมัครย้อนหลัง 6 เดือน</h2><svg class="chart" viewBox="0 0 250 115" preserveAspectRatio="none"><path class="axis" d="M12 13V98H244M12 78H244M12 55H244M12 32H244"/><polyline class="line1" points="18,83 61,54 104,54 147,37 190,37 233,22"/><polyline class="line2" points="18,95 61,78 104,78 147,67 190,68 233,45"/><g fill="#3563ef"><circle cx="18" cy="83" r="3"/><circle cx="61" cy="54" r="3"/><circle cx="104" cy="54" r="3"/><circle cx="147" cy="37" r="3"/><circle cx="190" cy="37" r="3"/><circle cx="233" cy="22" r="3"/></g><g fill="#27bfa2"><circle cx="18" cy="95" r="3"/><circle cx="61" cy="78" r="3"/><circle cx="104" cy="78" r="3"/><circle cx="147" cy="67" r="3"/><circle cx="190" cy="68" r="3"/><circle cx="233" cy="45" r="3"/></g><text x="17" y="111">ม.ค.</text><text x="60" y="111">ก.พ.</text><text x="102" y="111">มี.ค.</text><text x="145" y="111">เม.ย.</text><text x="187" y="111">พ.ค.</text><text x="228" y="111">มิ.ย.</text></svg></article><article class="admin-card"><h2>สัดส่วนผู้สมัครแยกตามภาควิชา</h2><div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i style="background:#3563ef"></i>วิศวกรรมคอมพิวเตอร์ 35%</span><span><i style="background:#9b51e0"></i>วิศวกรรมไฟฟ้า 25%</span><span><i style="background:#ffb81d"></i>วิศวกรรมเครื่องกล 20%</span><span><i style="background:#31b993"></i>วิศวกรรมโยธา 10%</span><span><i style="background:#69c6df"></i>อื่น ๆ 10%</span></div></div></article><article class="admin-card"><h2>การแจ้งเตือน</h2><div class="alerts"><div class="alert"><b>♧</b><span>มีผู้สมัครใหม่ <strong>15 รายการ</strong></span></div><div class="alert"><b>▤</b><span>เอกสารรอตรวจสอบ <strong>23 รายการ</strong></span></div><div class="alert"><b>!</b><span>ใกล้ปิดรับสมัคร <strong>3 ทุน</strong></span></div><div class="alert"><b>▣</b><span>แจ้งสัมภาษณ์แล้ว <strong>5 รายการ</strong></span></div></div><a class="admin-link" href="#">ดูทั้งหมด</a></article></div><article class="admin-wide"><a class="admin-link" href="#">ดูทั้งหมด</a><h2>ทุนที่ใกล้ปิดรับสมัคร</h2><div class="closing"><div class="closing-item"><strong>ทุนช่วยเหลือการศึกษา</strong><span class="danger">ปิดรับในอีก 3 วัน (30 มี.ค. 2567 16:30 น.)</span></div><div class="closing-item"><strong>ทุนเรียนดี</strong><span class="danger">ปิดรับในอีก 7 วัน (4 เม.ย. 2567 16:30 น.)</span></div></div></article></section></main></div><script>const menu=document.getElementById('adminMenu'),scrim=document.getElementById('menuScrim'),button=document.getElementById('menuButton');function toggleMenu(show){menu.classList.toggle('open',show);scrim.classList.toggle('open',show);button.setAttribute('aria-expanded',show)}button.onclick=()=>toggleMenu(!menu.classList.contains('open'));scrim.onclick=()=>toggleMenu(false)</script></body></html>
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard ผู้บริหาร | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a class="active" href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a href="#">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a href="#">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a href="#">◉ &nbsp; ตรวจสอบทุน</a>
+      <a href="#">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a href="#">▥ &nbsp; รายงาน</a>
+      <a href="#">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>Dashboard</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span>น.ส.จิราพร ช่างน้ำฝน⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">ภาพรวมระบบทุนการศึกษา</p>
+          <span class="admin-updated">ข้อมูล ณ วันที่ 9 ส.ค. 2569</span>
+        </div>
+        <button class="btn-export" id="exportBtn" type="button">⬇ &nbsp;ส่งออกข้อมูล (Excel)</button>
+      </div>
+
+      <div class="kpis">
+        <article class="kpi">
+          <b class="kpi-icon">♜</b>
+          <div>
+            <span>ทุนที่เปิดรับ</span>
+            <strong>12 <small>ทุน</small></strong>
+            <span class="kpi-trend up">▲ เพิ่มขึ้น 2 ทุนจากเดือนก่อน</span>
+          </div>
+        </article>
+        <article class="kpi">
+          <b class="kpi-icon">♧</b>
+          <div>
+            <span>ผู้สมัครทั้งหมด</span>
+            <strong>856 <small>คน</small></strong>
+            <span class="kpi-trend up">▲ เพิ่มขึ้น 94 คนจากเดือนก่อน</span>
+          </div>
+        </article>
+        <article class="kpi">
+          <b class="kpi-icon">♕</b>
+          <div>
+            <span>ผู้ได้รับทุน</span>
+            <strong>210 <small>คน</small></strong>
+            <span class="kpi-trend up">▲ เพิ่มขึ้น 18 คนจากเดือนก่อน</span>
+          </div>
+        </article>
+        <article class="kpi">
+          <b class="kpi-icon">▣</b>
+          <div>
+            <span>มูลค่าทุนรวม</span>
+            <strong>5,246,000 <small>บาท</small></strong>
+            <span class="kpi-trend up">▲ เพิ่มขึ้น 320,000 บาทจากเดือนก่อน</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="admin-grid">
+        <article class="admin-card">
+          <h2>จำนวนผู้สมัครย้อนหลัง 6 เดือน</h2>
+          <svg class="chart" viewBox="0 0 250 115" preserveAspectRatio="none">
+            <path class="axis" d="M12 13V98H244M12 78H244M12 55H244M12 32H244"/>
+            <polyline class="line1" points="18,83 61,54 104,54 147,37 190,37 233,22"/>
+            <polyline class="line2" points="18,95 61,78 104,78 147,67 190,68 233,45"/>
+            <g fill="#800000">
+              <circle cx="18" cy="83" r="3"/>
+              <circle cx="61" cy="54" r="3"/>
+              <circle cx="104" cy="54" r="3"/>
+              <circle cx="147" cy="37" r="3"/>
+              <circle cx="190" cy="37" r="3"/>
+              <circle cx="233" cy="22" r="3"/>
+            </g>
+            <g fill="#27bfa2">
+              <circle cx="18" cy="95" r="3"/>
+              <circle cx="61" cy="78" r="3"/>
+              <circle cx="104" cy="78" r="3"/>
+              <circle cx="147" cy="67" r="3"/>
+              <circle cx="190" cy="68" r="3"/>
+              <circle cx="233" cy="45" r="3"/>
+            </g>
+            <text x="17" y="111">ม.ค.</text>
+            <text x="60" y="111">ก.พ.</text>
+            <text x="102" y="111">มี.ค.</text>
+            <text x="145" y="111">เม.ย.</text>
+            <text x="187" y="111">พ.ค.</text>
+            <text x="228" y="111">มิ.ย.</text>
+          </svg>
+          <div class="chart-legend">
+            <span><i style="background:#800000"></i>ผู้สมัครใหม่</span>
+            <span><i style="background:#27bfa2"></i>ผู้ได้รับทุน</span>
+          </div>
+        </article>
+
+        <article class="admin-card">
+          <h2>สัดส่วนผู้สมัครแยกตามภาควิชา</h2>
+          <div class="donut-wrap">
+            <div class="donut"></div>
+            <div class="legend">
+              <span><i style="background:#3563ef"></i>วิศวกรรมคอมพิวเตอร์ 35%</span>
+              <span><i style="background:#9b51e0"></i>วิศวกรรมไฟฟ้า 25%</span>
+              <span><i style="background:#ffb81d"></i>วิศวกรรมเครื่องกล 20%</span>
+              <span><i style="background:#31b993"></i>วิศวกรรมโยธา 10%</span>
+              <span><i style="background:#69c6df"></i>อื่น ๆ 10%</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="admin-card">
+          <h2>การแจ้งเตือน</h2>
+          <div class="alerts">
+            <div class="alert"><b>♧</b><span>มีผู้สมัครใหม่ <strong>15 รายการ</strong></span></div>
+            <div class="alert"><b>▤</b><span>เอกสารรอตรวจสอบ <strong>23 รายการ</strong></span></div>
+            <div class="alert"><b>!</b><span>ใกล้ปิดรับสมัคร <strong>3 ทุน</strong></span></div>
+            <div class="alert"><b>▣</b><span>แจ้งสัมภาษณ์แล้ว <strong>5 รายการ</strong></span></div>
+          </div>
+          <a class="admin-link" href="#">ดูทั้งหมด</a>
+        </article>
+      </div>
+
+      <article class="admin-wide">
+        <a class="admin-link" href="#">ดูทั้งหมด</a>
+        <h2>ทุนที่ใกล้ปิดรับสมัคร</h2>
+        <div class="closing">
+          <div class="closing-item">
+            <strong>ทุนช่วยเหลือการศึกษา</strong>
+            <span class="danger">ปิดรับในอีก 3 วัน (30 มี.ค. 2567 16:30 น.)</span>
+          </div>
+          <div class="closing-item">
+            <strong>ทุนเรียนดี</strong>
+            <span class="danger">ปิดรับในอีก 7 วัน (4 เม.ย. 2567 16:30 น.)</span>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script>
+const menu = document.getElementById('adminMenu');
+const scrim = document.getElementById('menuScrim');
+const button = document.getElementById('menuButton');
+
+function toggleMenu(show) {
+  menu.classList.toggle('open', show);
+  scrim.classList.toggle('open', show);
+  button.setAttribute('aria-expanded', show);
+}
+
+button.onclick = () => toggleMenu(!menu.classList.contains('open'));
+scrim.onclick = () => toggleMenu(false);
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (typeof XLSX === 'undefined') {
+    alert('ไม่สามารถโหลดไลบรารีสำหรับส่งออกไฟล์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่');
+    return;
+  }
+
+  const kpiRows = [['รายการ', 'ค่า']];
+  document.querySelectorAll('.kpi').forEach(kpi => {
+    kpiRows.push([
+      kpi.querySelector('span').textContent.trim(),
+      kpi.querySelector('strong').textContent.replace(/\s+/g, ' ').trim()
+    ]);
+  });
+
+  const monthlyRows = [
+    ['เดือน', 'ผู้สมัครใหม่ (คน)', 'ผู้ได้รับทุน (คน)'],
+    ['ม.ค.', 98, 28],
+    ['ก.พ.', 132, 40],
+    ['มี.ค.', 132, 40],
+    ['เม.ย.', 158, 55],
+    ['พ.ค.', 158, 54],
+    ['มิ.ย.', 188, 70]
+  ];
+
+  const deptRows = [['ภาควิชา', 'สัดส่วน']];
+  document.querySelectorAll('.legend span').forEach(item => {
+    const match = item.textContent.trim().match(/^(.*?)\s+(\d+%)$/);
+    if (match) deptRows.push([match[1], match[2]]);
+  });
+
+  const alertRows = [['การแจ้งเตือน', 'จำนวน']];
+  document.querySelectorAll('.alert span').forEach(item => {
+    const match = item.textContent.trim().match(/^(.*?)\s*(\d+.*)$/);
+    if (match) alertRows.push([match[1].trim(), match[2].trim()]);
+  });
+
+  const closingRows = [['ทุนการศึกษา', 'กำหนดปิดรับ']];
+  document.querySelectorAll('.closing-item').forEach(item => {
+    closingRows.push([
+      item.querySelector('strong').textContent.trim(),
+      item.querySelector('span').textContent.trim()
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiRows), 'ภาพรวม');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(monthlyRows), 'ผู้สมัครรายเดือน');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(deptRows), 'สัดส่วนภาควิชา');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(alertRows), 'การแจ้งเตือน');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(closingRows), 'ทุนใกล้ปิดรับ');
+  XLSX.writeFile(wb, `dashboard-report-${new Date().toISOString().slice(0, 10)}.xlsx`);
+});
+</script>
+</body>
+</html>
