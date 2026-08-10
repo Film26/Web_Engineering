@@ -36,3 +36,37 @@ if(loginForm){
     }
   };
 }
+
+// Render scholarships published from the admin "จัดการทุนการศึกษา" page
+// (manage-scholarships.html) alongside the static demo cards on this page.
+const cardsContainer=document.querySelector('.cards');
+if(cardsContainer){
+  function escapeHtml(str){return String(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function parseLocalDate(yyyyMmDd){const[y,m,d]=yyyyMmDd.split('-').map(Number);return new Date(y,m-1,d)}
+  function daysUntil(deadline){
+    const now=new Date();
+    const today0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const deadline0=new Date(deadline.getFullYear(),deadline.getMonth(),deadline.getDate());
+    return Math.round((deadline0-today0)/86400000);
+  }
+
+  let uploaded=[];
+  try{uploaded=JSON.parse(localStorage.getItem('sms_scholarships')||'[]')}catch{uploaded=[]}
+
+  uploaded
+    .filter(s=>s.deadline&&daysUntil(parseLocalDate(s.deadline))>=0)
+    .forEach(s=>{
+      const days=daysUntil(parseLocalDate(s.deadline));
+      const soon=days<=5;
+      const card=document.createElement('article');
+      card.className='card';
+      card.innerHTML=`<h3>${escapeHtml(s.name)}</h3>
+        <p class="small muted">${escapeHtml(s.org||s.description||'')}</p>
+        <span class="tag ${soon?'soon':'open'}">${soon?`ปิดรับในอีก ${days} วัน`:'เปิดรับสมัคร'}</span>
+        <div class="card-bottom">
+          <span class="small">${escapeHtml(s.amount||'')}</span>
+          <a class="text-link" href="${s.fileData}" target="_blank" rel="noopener">ดูประกาศ (PDF) →</a>
+        </div>`;
+      cardsContainer.appendChild(card);
+    });
+}
