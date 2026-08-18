@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <script>
+    /* Access gate: runs before the page renders. Mirrors ADMIN_EMAILS in app.js
+       since this must execute standalone, ahead of any other script. Also honors
+       extra admins added via system-users.html. */
+    (function () {
+      var ADMIN_EMAILS = ['thanachit.suang@mail.kmutt.ac.th', 'tassawan.com2547@gmail.com'];
+      var extra = [];
+      try { extra = JSON.parse(localStorage.getItem('sms_extra_admins') || '[]'); } catch (e) {}
+      var email = (localStorage.getItem('sms_current_email') || '').trim().toLowerCase();
+      if (ADMIN_EMAILS.concat(extra).indexOf(email) === -1) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>จัดการทุนการศึกษา | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a class="active" href="manage-scholarships.html">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a href="applicants.html">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a href="review.html">◉ &nbsp; ตรวจสอบทุน</a>
+      <a href="recipients.html">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a href="reports.html">▥ &nbsp; รายงาน</a>
+      <a href="system-users.html">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>จัดการทุนการศึกษา</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span><span id="adminUserName">ผู้ดูแลระบบ</span>⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">เพิ่มประกาศทุนการศึกษา</p>
+          <span class="admin-updated">แนบไฟล์ประกาศ (PDF) แล้วเผยแพร่ ทุนจะไปแสดงในหน้า “ทุนที่กำลังเปิดรับสมัคร” ของเว็บไซต์ทันที</span>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <article class="admin-card">
+          <h2>เพิ่มทุนการศึกษาใหม่</h2>
+          <form id="scholarshipForm">
+            <div class="field">
+              <label>ชื่อทุน</label>
+              <input id="schName" required placeholder="เช่น ทุนเยาวชนคุณภาพแห่งปี 2026">
+            </div>
+            <div class="field">
+              <label>หน่วยงาน/ผู้ให้ทุน</label>
+              <input id="schOrg" placeholder="เช่น มูลนิธิสภาวิทยาศาสตร์และเทคโนโลยีแห่งประเทศไทย (มสวท.)">
+            </div>
+            <div class="field">
+              <label>มูลค่าทุน</label>
+              <input id="schAmount" placeholder="เช่น 10,000 บาท">
+            </div>
+            <div class="field">
+              <label>วันปิดรับสมัคร</label>
+              <input id="schDeadline" type="date" required>
+            </div>
+            <div class="field">
+              <label>รายละเอียด/คุณสมบัติโดยย่อ</label>
+              <textarea id="schDesc" placeholder="สรุปคุณสมบัติผู้สมัครหรือรายละเอียดทุนโดยย่อ"></textarea>
+            </div>
+            <div class="field">
+              <label>ไฟล์ประกาศทุน (PDF เท่านั้น ไม่เกิน 2MB)</label>
+              <input id="schFile" type="file" accept="application/pdf" required>
+            </div>
+            <button class="btn primary" type="submit">บันทึกและเผยแพร่</button>
+          </form>
+        </article>
+
+        <article class="admin-card">
+          <h2>ทุนที่เผยแพร่แล้ว (<span id="schCount">0</span>)</h2>
+          <div id="schList" class="sch-list"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const menu = document.getElementById('adminMenu');
+const scrim = document.getElementById('menuScrim');
+const button = document.getElementById('menuButton');
+
+function toggleMenu(show) {
+  menu.classList.toggle('open', show);
+  scrim.classList.toggle('open', show);
+  button.setAttribute('aria-expanded', show);
+}
+
+button.onclick = () => toggleMenu(!menu.classList.contains('open'));
+scrim.onclick = () => toggleMenu(false);
+
+document.getElementById('adminUserName').textContent = (localStorage.getItem('sms_current_email') || '').trim() || 'ผู้ดูแลระบบ';
+
+/* ===== Scholarship storage (shared key with app.js on the public pages) ===== */
+const SCHOLARSHIP_KEY = 'sms_scholarships';
+
+function loadScholarships() {
+  try { return JSON.parse(localStorage.getItem(SCHOLARSHIP_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveScholarships(list) {
+  localStorage.setItem(SCHOLARSHIP_KEY, JSON.stringify(list));
+}
+function parseLocalDate(yyyyMmDd) {
+  const [y, m, d] = yyyyMmDd.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function daysUntil(deadline) {
+  const now = new Date();
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const deadline0 = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+  return Math.round((deadline0 - today0) / 86400000);
+}
+const THAI_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+function formatThaiDate(d) {
+  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderList() {
+  const list = loadScholarships();
+  document.getElementById('schCount').textContent = list.length;
+  const container = document.getElementById('schList');
+
+  if (!list.length) {
+    container.innerHTML = '<p class="muted small">ยังไม่มีทุนที่เผยแพร่</p>';
+    return;
+  }
+
+  container.innerHTML = list.map(s => {
+    const deadline = parseLocalDate(s.deadline);
+    const days = daysUntil(deadline);
+    const statusText = days < 0 ? 'ปิดรับสมัครแล้ว' : days === 0 ? 'ปิดรับวันนี้' : `เหลืออีก ${days} วัน`;
+    return `<div class="sch-item">
+      <div class="sch-item-main">
+        <strong>${escapeHtml(s.name)}</strong>
+        <span class="small muted">${escapeHtml(s.org || '-')}${s.amount ? ' · ' + escapeHtml(s.amount) : ''}</span>
+        <span class="small muted">${statusText} · ปิดรับ ${formatThaiDate(deadline)}</span>
+      </div>
+      <div class="sch-item-actions">
+        <a class="text-link" href="${s.fileData}" target="_blank" rel="noopener" download="${escapeHtml(s.fileName)}">ดูไฟล์ PDF</a>
+        <button class="btn-link-danger" data-id="${s.id}" type="button">ลบ</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('[data-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!confirm('ลบทุนนี้ออกจากประกาศ?')) return;
+      saveScholarships(loadScholarships().filter(s => s.id !== btn.dataset.id));
+      renderList();
+    });
+  });
+}
+
+document.getElementById('scholarshipForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const fileInput = document.getElementById('schFile');
+  const file = fileInput.files[0];
+
+  if (!file) return;
+  if (file.type !== 'application/pdf') {
+    alert('กรุณาแนบไฟล์ประกาศทุนเป็น PDF เท่านั้น');
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('ไฟล์ใหญ่เกินไป (ระบบตัวอย่างนี้เก็บไฟล์ในเบราว์เซอร์ จำกัดไม่เกิน 2MB ต่อไฟล์)');
+    return;
+  }
+
+  const fileData = await fileToDataUrl(file);
+  const list = loadScholarships();
+  list.push({
+    id: Date.now().toString(36),
+    name: document.getElementById('schName').value.trim(),
+    org: document.getElementById('schOrg').value.trim(),
+    amount: document.getElementById('schAmount').value.trim(),
+    deadline: document.getElementById('schDeadline').value,
+    description: document.getElementById('schDesc').value.trim(),
+    fileName: file.name,
+    fileData
+  });
+
+  try {
+    saveScholarships(list);
+  } catch (err) {
+    alert('บันทึกไม่สำเร็จ: พื้นที่จัดเก็บของเบราว์เซอร์เต็ม ลองใช้ไฟล์ PDF ที่เล็กลง');
+    return;
+  }
+
+  event.target.reset();
+  renderList();
+  alert('เผยแพร่ทุนเรียบร้อยแล้ว ระบบจะแสดงทุนนี้ในหน้า "ทุนที่กำลังเปิดรับสมัคร" ของเว็บไซต์ทันที');
+});
+
+renderList();
+</script>
+</body>
+</html>

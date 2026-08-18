@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <script>
+    (function () {
+      var ADMIN_EMAILS = ['thanachit.suang@mail.kmutt.ac.th', 'tassawan.com2547@gmail.com'];
+      var extra = [];
+      try { extra = JSON.parse(localStorage.getItem('sms_extra_admins') || '[]'); } catch (e) {}
+      var email = (localStorage.getItem('sms_current_email') || '').trim().toLowerCase();
+      if (ADMIN_EMAILS.concat(extra).indexOf(email) === -1) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ตรวจสอบทุน | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a href="manage-scholarships.html">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a href="applicants.html">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a class="active" href="review.html">◉ &nbsp; ตรวจสอบทุน</a>
+      <a href="recipients.html">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a href="reports.html">▥ &nbsp; รายงาน</a>
+      <a href="system-users.html">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>ตรวจสอบทุน</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span><span id="adminUserName">ผู้ดูแลระบบ</span>⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">คิวรอตรวจสอบ (<span id="queueCount">0</span> รายการ)</p>
+          <span class="admin-updated">พิจารณาอนุมัติหรือไม่อนุมัติผู้สมัครแต่ละราย ผลจะอัปเดตในหน้า "ผู้สมัครและเอกสาร" และ "ผู้ได้รับทุน" ทันที</span>
+        </div>
+      </div>
+
+      <div id="queueList" class="review-list"></div>
+      <article class="admin-card" id="emptyCard" style="display:none">
+        <p class="muted small" style="margin:0">ไม่มีรายการรอตรวจสอบในขณะนี้ 🎉</p>
+      </article>
+    </section>
+  </main>
+</div>
+
+<script src="admin-data.js"></script>
+<script>
+initAdminShell();
+
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function render() {
+  const all = loadApplicants();
+  const pending = all.filter(a => a.status === 'pending');
+  document.getElementById('queueCount').textContent = pending.length;
+  document.getElementById('emptyCard').style.display = pending.length ? 'none' : 'block';
+
+  document.getElementById('queueList').innerHTML = pending.map(a => {
+    const docsOk = a.docs.length >= REQUIRED_DOCS.length;
+    return `<article class="admin-card review-item">
+      <div class="review-item-info">
+        <strong>${escapeHtml(a.name)}</strong>
+        <span class="small muted">${escapeHtml(a.dept)} · ปี ${a.year} · เกรดเฉลี่ย ${escapeHtml(a.gpa)}</span>
+        <span class="small muted">สมัคร: ${escapeHtml(a.scholarship)} · วันที่สมัคร ${formatThaiDate(a.appliedAt)}</span>
+        <span class="small ${docsOk ? '' : 'danger'}">เอกสาร: ${a.docs.map(escapeHtml).join(', ') || '-'}${docsOk ? '' : ` (ขาด ${REQUIRED_DOCS.length - a.docs.length} รายการ)`}</span>
+      </div>
+      <div class="review-item-actions">
+        <button class="btn primary" data-action="approve" data-id="${a.id}" type="button">✓ อนุมัติ</button>
+        <button class="btn outline" data-action="reject" data-id="${a.id}" type="button">✕ ไม่อนุมัติ</button>
+      </div>
+    </article>`;
+  }).join('');
+
+  document.querySelectorAll('#queueList [data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const list = loadApplicants();
+      const item = list.find(a => a.id === btn.dataset.id);
+      if (!item) return;
+      if (btn.dataset.action === 'approve') {
+        item.status = 'approved';
+        item.approvedAt = todayIso();
+      } else {
+        item.status = 'rejected';
+        item.approvedAt = null;
+      }
+      saveApplicants(list);
+      render();
+    });
+  });
+}
+
+render();
+</script>
+</body>
+</html>

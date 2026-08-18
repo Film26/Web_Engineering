@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <script>
+    (function () {
+      var ADMIN_EMAILS = ['thanachit.suang@mail.kmutt.ac.th', 'tassawan.com2547@gmail.com'];
+      var extra = [];
+      try { extra = JSON.parse(localStorage.getItem('sms_extra_admins') || '[]'); } catch (e) {}
+      var email = (localStorage.getItem('sms_current_email') || '').trim().toLowerCase();
+      if (ADMIN_EMAILS.concat(extra).indexOf(email) === -1) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ผู้สมัครและเอกสาร | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a href="manage-scholarships.html">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a class="active" href="applicants.html">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a href="review.html">◉ &nbsp; ตรวจสอบทุน</a>
+      <a href="recipients.html">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a href="reports.html">▥ &nbsp; รายงาน</a>
+      <a href="system-users.html">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>ผู้สมัครและเอกสาร</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span><span id="adminUserName">ผู้ดูแลระบบ</span>⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">รายชื่อผู้สมัครทุนการศึกษาทั้งหมด</p>
+          <span class="admin-updated">ตรวจสอบสถานะเอกสารและผลการพิจารณาของผู้สมัครแต่ละราย</span>
+        </div>
+      </div>
+
+      <article class="admin-card">
+        <div class="tabs" id="statusTabs">
+          <button class="tab active" data-status="all" type="button">ทั้งหมด</button>
+          <button class="tab" data-status="pending" type="button">รอตรวจสอบ</button>
+          <button class="tab" data-status="approved" type="button">ผ่านการพิจารณา</button>
+          <button class="tab" data-status="rejected" type="button">ไม่ผ่าน</button>
+        </div>
+        <div class="field" style="max-width:280px;margin:12px 0 0">
+          <input id="searchBox" placeholder="ค้นหาชื่อผู้สมัคร...">
+        </div>
+
+        <div style="overflow-x:auto;margin-top:12px">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ชื่อ–นามสกุล</th>
+                <th>ภาควิชา / ชั้นปี</th>
+                <th>ทุนที่สมัคร</th>
+                <th>เอกสาร</th>
+                <th>สถานะ</th>
+                <th>วันที่สมัคร</th>
+              </tr>
+            </thead>
+            <tbody id="applicantRows"></tbody>
+          </table>
+        </div>
+        <p id="emptyState" class="muted small" style="display:none;padding:14px 0">ไม่พบผู้สมัครที่ตรงกับเงื่อนไข</p>
+      </article>
+    </section>
+  </main>
+</div>
+
+<script src="admin-data.js"></script>
+<script>
+initAdminShell();
+
+const STATUS_LABEL = { pending: 'รอตรวจสอบ', approved: 'ผ่านการพิจารณา', rejected: 'ไม่ผ่านการพิจารณา' };
+const STATUS_TAG = { pending: 'soon', approved: 'open', rejected: 'reject' };
+
+let activeStatus = 'all';
+let searchTerm = '';
+
+function render() {
+  const all = loadApplicants();
+  const filtered = all.filter(a => {
+    const matchStatus = activeStatus === 'all' || a.status === activeStatus;
+    const matchSearch = !searchTerm || a.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchStatus && matchSearch;
+  });
+
+  const rows = document.getElementById('applicantRows');
+  const emptyState = document.getElementById('emptyState');
+
+  if (!filtered.length) {
+    rows.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  rows.innerHTML = filtered.map(a => {
+    const docsOk = a.docs.length >= REQUIRED_DOCS.length;
+    const docsText = docsOk ? `ครบ ${REQUIRED_DOCS.length}/${REQUIRED_DOCS.length}` : `ขาด ${REQUIRED_DOCS.length - a.docs.length} รายการ (${a.docs.length}/${REQUIRED_DOCS.length})`;
+    return `<tr>
+      <td>${escapeHtml(a.name)}</td>
+      <td>${escapeHtml(a.dept)} · ปี ${a.year}</td>
+      <td>${escapeHtml(a.scholarship)}</td>
+      <td class="${docsOk ? '' : 'danger'}" style="${docsOk ? '' : 'font-weight:700'}">${docsText}</td>
+      <td><span class="tag ${STATUS_TAG[a.status]}">${STATUS_LABEL[a.status]}</span></td>
+      <td>${formatThaiDate(a.appliedAt)}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('statusTabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('#statusTabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  activeStatus = btn.dataset.status;
+  render();
+});
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  searchTerm = e.target.value.trim();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <script>
+    (function () {
+      var ADMIN_EMAILS = ['thanachit.suang@mail.kmutt.ac.th', 'tassawan.com2547@gmail.com'];
+      var extra = [];
+      try { extra = JSON.parse(localStorage.getItem('sms_extra_admins') || '[]'); } catch (e) {}
+      var email = (localStorage.getItem('sms_current_email') || '').trim().toLowerCase();
+      if (ADMIN_EMAILS.concat(extra).indexOf(email) === -1) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ผู้ได้รับทุน | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a href="manage-scholarships.html">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a href="applicants.html">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a href="review.html">◉ &nbsp; ตรวจสอบทุน</a>
+      <a class="active" href="recipients.html">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a href="reports.html">▥ &nbsp; รายงาน</a>
+      <a href="system-users.html">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>ผู้ได้รับทุน</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span><span id="adminUserName">ผู้ดูแลระบบ</span>⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">ผู้ได้รับทุนที่ผ่านการอนุมัติ (<span id="recipientCount">0</span> คน)</p>
+          <span class="admin-updated">รายชื่อนี้อัปเดตอัตโนมัติเมื่อมีการอนุมัติจากหน้า "ตรวจสอบทุน"</span>
+        </div>
+        <button class="btn-export" id="exportBtn" type="button">⬇ &nbsp;ส่งออกข้อมูล (Excel)</button>
+      </div>
+
+      <article class="admin-card">
+        <div style="overflow-x:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ชื่อ–นามสกุล</th>
+                <th>ภาควิชา / ชั้นปี</th>
+                <th>ทุนที่ได้รับ</th>
+                <th>เกรดเฉลี่ย</th>
+                <th>วันที่อนุมัติ</th>
+              </tr>
+            </thead>
+            <tbody id="recipientRows"></tbody>
+          </table>
+        </div>
+        <p id="emptyState" class="muted small" style="display:none;padding:14px 0">ยังไม่มีผู้ได้รับทุนที่ผ่านการอนุมัติ</p>
+      </article>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="admin-data.js"></script>
+<script>
+initAdminShell();
+
+function recipients() {
+  return loadApplicants().filter(a => a.status === 'approved');
+}
+
+function render() {
+  const list = recipients();
+  document.getElementById('recipientCount').textContent = list.length;
+  const rows = document.getElementById('recipientRows');
+  const emptyState = document.getElementById('emptyState');
+
+  if (!list.length) {
+    rows.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  rows.innerHTML = list.map(a => `<tr>
+    <td>${escapeHtml(a.name)}</td>
+    <td>${escapeHtml(a.dept)} · ปี ${a.year}</td>
+    <td>${escapeHtml(a.scholarship)}</td>
+    <td>${escapeHtml(a.gpa)}</td>
+    <td>${formatThaiDate(a.approvedAt)}</td>
+  </tr>`).join('');
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (typeof XLSX === 'undefined') {
+    alert('ไม่สามารถโหลดไลบรารีสำหรับส่งออกไฟล์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่');
+    return;
+  }
+  const rows = [['ชื่อ-นามสกุล', 'ภาควิชา', 'ชั้นปี', 'ทุนที่ได้รับ', 'เกรดเฉลี่ย', 'วันที่อนุมัติ']]
+    .concat(recipients().map(a => [a.name, a.dept, a.year, a.scholarship, a.gpa, formatThaiDate(a.approvedAt)]));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'ผู้ได้รับทุน');
+  XLSX.writeFile(wb, `recipients-${new Date().toISOString().slice(0, 10)}.xlsx`);
+});
+
+render();
+</script>
+</body>
+</html>

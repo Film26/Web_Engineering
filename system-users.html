@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <script>
+    (function () {
+      var ADMIN_EMAILS = ['thanachit.suang@mail.kmutt.ac.th', 'tassawan.com2547@gmail.com'];
+      var extra = [];
+      try { extra = JSON.parse(localStorage.getItem('sms_extra_admins') || '[]'); } catch (e) {}
+      var email = (localStorage.getItem('sms_current_email') || '').trim().toLowerCase();
+      if (ADMIN_EMAILS.concat(extra).indexOf(email) === -1) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ผู้ใช้งานระบบ | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a href="manage-scholarships.html">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a href="applicants.html">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a href="review.html">◉ &nbsp; ตรวจสอบทุน</a>
+      <a href="recipients.html">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a href="reports.html">▥ &nbsp; รายงาน</a>
+      <a class="active" href="system-users.html">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>ผู้ใช้งานระบบ</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span><span id="adminUserName">ผู้ดูแลระบบ</span>⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">จัดการผู้ดูแลระบบ</p>
+          <span class="admin-updated">อีเมลในรายการนี้เท่านั้นที่เข้าหน้าผู้ดูแลระบบ (Dashboard และเมนูอื่น ๆ) ได้</span>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <article class="admin-card">
+          <h2>เพิ่มผู้ดูแลระบบใหม่</h2>
+          <form id="addAdminForm">
+            <div class="field">
+              <label>อีเมล</label>
+              <input id="newAdminEmail" type="email" required placeholder="name@mail.kmutt.ac.th">
+            </div>
+            <button class="btn primary" type="submit">เพิ่มสิทธิ์ผู้ดูแลระบบ</button>
+          </form>
+        </article>
+
+        <article class="admin-card">
+          <h2>รายชื่อผู้ดูแลระบบ</h2>
+          <div id="userList" class="sch-list"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="admin-data.js"></script>
+<script>
+initAdminShell();
+
+function render() {
+  const extras = loadExtraAdmins();
+  const currentEmail = getCurrentEmail();
+  const container = document.getElementById('userList');
+
+  const baseRows = BASE_ADMIN_EMAILS.map(email => `<div class="sch-item">
+    <div class="sch-item-main">
+      <strong>${escapeHtml(email)}</strong>
+      <span class="small muted">ผู้ดูแลระบบเริ่มต้น${email === currentEmail ? ' · บัญชีที่ล็อกอินอยู่' : ''}</span>
+    </div>
+    <div class="sch-item-actions"><span class="small muted">ลบไม่ได้</span></div>
+  </div>`).join('');
+
+  const extraRows = extras.map(email => `<div class="sch-item">
+    <div class="sch-item-main">
+      <strong>${escapeHtml(email)}</strong>
+      <span class="small muted">เพิ่มโดยผู้ดูแลระบบ${email === currentEmail ? ' · บัญชีที่ล็อกอินอยู่' : ''}</span>
+    </div>
+    <div class="sch-item-actions">
+      <button class="btn-link-danger" data-email="${escapeHtml(email)}" type="button">ลบสิทธิ์</button>
+    </div>
+  </div>`).join('');
+
+  container.innerHTML = baseRows + extraRows;
+
+  container.querySelectorAll('[data-email]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.email === currentEmail) {
+        alert('ไม่สามารถลบสิทธิ์ของบัญชีที่กำลังล็อกอินอยู่ได้');
+        return;
+      }
+      if (!confirm(`ลบสิทธิ์ผู้ดูแลระบบของ ${btn.dataset.email}?`)) return;
+      saveExtraAdmins(loadExtraAdmins().filter(e => e !== btn.dataset.email));
+      render();
+    });
+  });
+}
+
+document.getElementById('addAdminForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const input = document.getElementById('newAdminEmail');
+  const email = input.value.trim().toLowerCase();
+
+  if (allAdminEmails().includes(email)) {
+    alert('อีเมลนี้มีสิทธิ์ผู้ดูแลระบบอยู่แล้ว');
+    return;
+  }
+
+  const extras = loadExtraAdmins();
+  extras.push(email);
+  saveExtraAdmins(extras);
+  input.value = '';
+  render();
+  alert('เพิ่มสิทธิ์ผู้ดูแลระบบเรียบร้อยแล้ว บัญชีนี้จะเข้าหน้าผู้ดูแลระบบได้ทันทีที่ล็อกอิน');
+});
+
+render();
+</script>
+</body>
+</html>

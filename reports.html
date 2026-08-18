@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <script>
+    (function () {
+      var ADMIN_EMAILS = ['thanachit.suang@mail.kmutt.ac.th', 'tassawan.com2547@gmail.com'];
+      var extra = [];
+      try { extra = JSON.parse(localStorage.getItem('sms_extra_admins') || '[]'); } catch (e) {}
+      var email = (localStorage.getItem('sms_current_email') || '').trim().toLowerCase();
+      if (ADMIN_EMAILS.concat(extra).indexOf(email) === -1) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>รายงาน | Scholarship Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-side" id="adminMenu">
+    <div class="admin-logo"><b>⚙</b><span>Scholarship<br>Management System</span></div>
+    <nav class="admin-menu">
+      <a href="dashboard.html">⌂ &nbsp; หน้าหลัก</a>
+      <a href="manage-scholarships.html">▣ &nbsp; จัดการทุนการศึกษา</a>
+      <a href="applicants.html">▤ &nbsp; ผู้สมัครและเอกสาร</a>
+      <a href="review.html">◉ &nbsp; ตรวจสอบทุน</a>
+      <a href="recipients.html">▱ &nbsp; ผู้ได้รับทุน</a>
+      <a class="active" href="reports.html">▥ &nbsp; รายงาน</a>
+      <a href="system-users.html">♧ &nbsp; ผู้ใช้งานระบบ</a>
+      <a class="bottom" href="index.html">‹ &nbsp; กลับหน้าเว็บไซต์</a>
+    </nav>
+  </aside>
+  <div class="menu-scrim" id="menuScrim"></div>
+  <main class="admin-main">
+    <header class="admin-top">
+      <div class="admin-title">
+        <button class="admin-hamburger" id="menuButton" aria-label="เปิดเมนู" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <strong>รายงาน</strong>
+      </div>
+      <div class="admin-user"><span class="avatar">👩🏻</span><span id="adminUserName">ผู้ดูแลระบบ</span>⌄</div>
+    </header>
+
+    <section class="admin-content">
+      <div class="admin-headline">
+        <div>
+          <p class="admin-subtitle">สรุปภาพรวมผู้สมัครทุนการศึกษา</p>
+          <span class="admin-updated" id="updatedDate"></span>
+        </div>
+        <button class="btn-export" id="exportBtn" type="button">⬇ &nbsp;ส่งออกรายงาน (Excel)</button>
+      </div>
+
+      <div class="kpis">
+        <article class="kpi">
+          <b class="kpi-icon">♧</b>
+          <div><span>ผู้สมัครทั้งหมด</span><strong id="kpiTotal">0 <small>คน</small></strong></div>
+        </article>
+        <article class="kpi">
+          <b class="kpi-icon">◉</b>
+          <div><span>รอตรวจสอบ</span><strong id="kpiPending">0 <small>คน</small></strong></div>
+        </article>
+        <article class="kpi">
+          <b class="kpi-icon">♕</b>
+          <div><span>ผ่านการพิจารณา</span><strong id="kpiApproved">0 <small>คน</small></strong></div>
+        </article>
+        <article class="kpi">
+          <b class="kpi-icon">▣</b>
+          <div><span>ไม่ผ่านการพิจารณา</span><strong id="kpiRejected">0 <small>คน</small></strong></div>
+        </article>
+      </div>
+
+      <article class="admin-card">
+        <h2>จำนวนผู้สมัครแยกตามทุนการศึกษา</h2>
+        <div id="scholarshipBars" class="bar-list"></div>
+      </article>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="admin-data.js"></script>
+<script>
+initAdminShell();
+
+const THAI_MONTHS_FULL = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+(function () {
+  const now = new Date();
+  document.getElementById('updatedDate').textContent = `ข้อมูล ณ วันที่ ${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now.getFullYear() + 543}`;
+})();
+
+function render() {
+  const all = loadApplicants();
+  const pending = all.filter(a => a.status === 'pending').length;
+  const approved = all.filter(a => a.status === 'approved').length;
+  const rejected = all.filter(a => a.status === 'rejected').length;
+
+  document.getElementById('kpiTotal').innerHTML = `${all.length} <small>คน</small>`;
+  document.getElementById('kpiPending').innerHTML = `${pending} <small>คน</small>`;
+  document.getElementById('kpiApproved').innerHTML = `${approved} <small>คน</small>`;
+  document.getElementById('kpiRejected').innerHTML = `${rejected} <small>คน</small>`;
+
+  const counts = {};
+  all.forEach(a => { counts[a.scholarship] = (counts[a.scholarship] || 0) + 1; });
+  const maxCount = Math.max(1, ...Object.values(counts));
+
+  document.getElementById('scholarshipBars').innerHTML = Object.entries(counts).map(([name, count]) => `
+    <div class="bar-row">
+      <span class="bar-label">${escapeHtml(name)}</span>
+      <div class="bar-track"><span class="bar-fill" style="width:${(count / maxCount * 100).toFixed(0)}%"></span></div>
+      <span class="bar-value">${count} คน</span>
+    </div>`).join('');
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (typeof XLSX === 'undefined') {
+    alert('ไม่สามารถโหลดไลบรารีสำหรับส่งออกไฟล์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่');
+    return;
+  }
+  const all = loadApplicants();
+  const summaryRows = [
+    ['รายการ', 'จำนวน (คน)'],
+    ['ผู้สมัครทั้งหมด', all.length],
+    ['รอตรวจสอบ', all.filter(a => a.status === 'pending').length],
+    ['ผ่านการพิจารณา', all.filter(a => a.status === 'approved').length],
+    ['ไม่ผ่านการพิจารณา', all.filter(a => a.status === 'rejected').length]
+  ];
+  const applicantRows = [['ชื่อ-นามสกุล', 'ภาควิชา', 'ชั้นปี', 'ทุนที่สมัคร', 'เกรดเฉลี่ย', 'สถานะ', 'วันที่สมัคร']]
+    .concat(all.map(a => [a.name, a.dept, a.year, a.scholarship, a.gpa, a.status, formatThaiDate(a.appliedAt)]));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), 'สรุปภาพรวม');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(applicantRows), 'ผู้สมัครทั้งหมด');
+  XLSX.writeFile(wb, `scholarship-report-${new Date().toISOString().slice(0, 10)}.xlsx`);
+});
+
+render();
+</script>
+</body>
+</html>
