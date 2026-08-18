@@ -38,9 +38,9 @@ export default async function ScholarshipsPage() {
                 </span>
                 <div className="card-bottom">
                   <span className="small">{round.scholarship.amount ?? '-'}</span>
-                  <a className="text-link" href="/login">
+                  <Link className="text-link" href={`/apply/${round.id}`}>
                     สมัครเลย →
-                  </a>
+                  </Link>
                 </div>
               </article>
             ))}
