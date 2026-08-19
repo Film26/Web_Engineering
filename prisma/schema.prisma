@@ -1,0 +1,270 @@
+// Data model for the KMUTT Scholarship Management System.
+//
+// Dev database is SQLite (file:./dev.db) so the app runs with zero external
+// setup. For production, point DATABASE_URL at a hosted Postgres instance
+// (e.g. Supabase/Neon) and change `provider` below to "postgresql" — the
+// schema itself is written to be portable between the two.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  STUDENT
+  SCHOLARSHIP_OFFICER
+  COMMITTEE
+  ADMINISTRATOR
+  SUPER_ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(STUDENT)
+  studentId     String?
+  department    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  applications  Application[]
+  documentReviews DocumentReview[] @relation("Reviewer")
+  committeeScores CommitteeScore[] @relation("Scorer")
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+// --- NextAuth.js required models (Prisma adapter) ---
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- Scholarships ---
+
+model Sponsor {
+  id           String   @id @default(cuid())
+  name         String
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  logoUrl      String?
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  scholarships Scholarship[]
+}
+
+model Scholarship {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  amount      String?
+  sponsorId   String?
+  formSchema  Json?    // dynamic form builder definition (fields, validation)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sponsor      Sponsor?               @relation(fields: [sponsorId], references: [id])
+  rounds       ScholarshipRound[]
+  documentReqs DocumentRequirement[]
+}
+
+model ScholarshipRound {
+  id            String      @id @default(cuid())
+  scholarshipId String
+  name          String
+  opensAt       DateTime
+  closesAt      DateTime
+  quota         Int?
+  createdAt     DateTime    @default(now())
+
+  scholarship  Scholarship   @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  applications Application[]
+}
+
+model DocumentRequirement {
+  id            String      @id @default(cuid())
+  scholarshipId String
+  label         String
+  required      Boolean     @default(true)
+  order         Int         @default(0)
+
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+}
+
+// --- Applications ---
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  DOCUMENTS_PENDING
+  UNDER_REVIEW
+  INTERVIEW_SCHEDULED
+  COMMITTEE_REVIEW
+  APPROVED
+  REJECTED
+  CONFIRMED
+  WITHDRAWN
+}
+
+model Application {
+  id            String            @id @default(cuid())
+  userId        String
+  roundId       String
+  status        ApplicationStatus @default(DRAFT)
+  formData      Json?             // answers to the scholarship's dynamic form
+  gpa           String?
+  pdpaConsentAt DateTime?
+  submittedAt   DateTime?
+  lastSavedAt   DateTime?         // auto-save timestamp while still DRAFT
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user           User                  @relation(fields: [userId], references: [id])
+  round          ScholarshipRound      @relation(fields: [roundId], references: [id])
+  documents      ApplicationDocument[]
+  documentReviews DocumentReview[]
+  interview      Interview?
+  committeeScores CommitteeScore[]
+  resultDecision ResultDecision?
+  auditLogs      AuditLog[]
+
+  @@unique([userId, roundId])
+}
+
+model ApplicationDocument {
+  id            String   @id @default(cuid())
+  applicationId String
+  label         String
+  fileUrl       String
+  fileName      String
+  fileSize      Int
+  mimeType      String
+  uploadedAt    DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+enum ReviewDecision {
+  APPROVED
+  REVISION_REQUESTED
+}
+
+model DocumentReview {
+  id            String         @id @default(cuid())
+  applicationId String
+  reviewerId    String
+  decision      ReviewDecision
+  comment       String?
+  createdAt     DateTime       @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewer    User        @relation("Reviewer", fields: [reviewerId], references: [id])
+}
+
+model Interview {
+  id            String    @id @default(cuid())
+  applicationId String    @unique
+  scheduledAt   DateTime?
+  location      String?
+  notes         String?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model CommitteeScore {
+  id            String   @id @default(cuid())
+  applicationId String
+  scorerId      String
+  score         Float
+  comment       String?
+  createdAt     DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  scorer      User        @relation("Scorer", fields: [scorerId], references: [id])
+
+  @@unique([applicationId, scorerId])
+}
+
+enum FinalDecision {
+  APPROVED
+  REJECTED
+}
+
+model ResultDecision {
+  id            String        @id @default(cuid())
+  applicationId String        @unique
+  decision      FinalDecision
+  decidedAt     DateTime      @default(now())
+  confirmedAt   DateTime?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+// --- Notifications & Audit ---
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id            String       @id @default(cuid())
+  userId        String?
+  applicationId String?
+  action        String
+  detail        Json?
+  ipAddress     String?
+  createdAt     DateTime     @default(now())
+
+  user        User?        @relation(fields: [userId], references: [id])
+  application Application? @relation(fields: [applicationId], references: [id])
+}
