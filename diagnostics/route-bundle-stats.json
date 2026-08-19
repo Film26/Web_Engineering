@@ -1,0 +1,106 @@
+[
+  {
+    "route": "/apply/[roundId]",
+    "firstLoadUncompressedJsBytes": 807563,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\090i8fb_z9ahh.js",
+      ".next\\static\\chunks\\3_ektit74m4u2.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/admin",
+    "firstLoadUncompressedJsBytes": 498202,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\2pm2y39l4p1r3.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/admin/scholarships",
+    "firstLoadUncompressedJsBytes": 498202,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\2pm2y39l4p1r3.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/login",
+    "firstLoadUncompressedJsBytes": 497291,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\1-exe4p01ywak.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/",
+    "firstLoadUncompressedJsBytes": 496628,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\090i8fb_z9ahh.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/scholarships",
+    "firstLoadUncompressedJsBytes": 496628,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\090i8fb_z9ahh.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/unauthorized",
+    "firstLoadUncompressedJsBytes": 495666,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\22i43cg4l4-dq.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  },
+  {
+    "route": "/_not-found",
+    "firstLoadUncompressedJsBytes": 486798,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\1hayndovoq5vx.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\1y1x_85sjaicn.js",
+      ".next\\static\\chunks\\0iwnq71sea67i.js",
+      ".next\\static\\chunks\\43k_6-iw24653.js",
+      ".next\\static\\chunks\\turbopack-4578oiw0awxoh.js"
+    ]
+  }
+]
